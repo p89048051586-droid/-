@@ -301,6 +301,56 @@ td { padding: 6px 0; border-bottom: 1px solid var(--line); }
   .splash-panel h1 { font-size: 42px; }
 }
 
+
+.splash-screen .top { display: none; }
+.splash-screen .dock { display: none; }
+.splash-screen .stage {
+  grid-template-columns: 1fr;
+  padding: 0;
+  min-height: 100vh;
+  align-items: stretch;
+}
+.splash-screen .intro-visual {
+  min-height: 100vh;
+  border-radius: 0;
+  box-shadow: none;
+}
+.splash-screen .intro-visual .slide { padding: 0; }
+.splash-screen .intro-visual .slide img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  object-position: center;
+  border-radius: 0;
+  box-shadow: none;
+  background: #efe4d6;
+}
+.splash-hud {
+  position: fixed;
+  left: 16px; right: 16px; bottom: 16px;
+  z-index: 4;
+  display: grid;
+  gap: 10px;
+  width: min(560px, calc(100% - 32px));
+  margin: 0 auto;
+  pointer-events: none;
+}
+.splash-hud > * { pointer-events: auto; }
+.splash-hud .audio-player {
+  background: rgba(251, 247, 242, 0.94);
+  backdrop-filter: blur(8px);
+  margin-top: 0;
+}
+.splash-hud .splash-actions { margin-top: 0; justify-content: center; }
+.splash-hud .btn.goldish { min-width: 220px; }
+.intro-caption { bottom: 150px; }
+@media (max-width: 860px) {
+  .splash-hud { bottom: 10px; left: 10px; right: 10px; width: auto; }
+  .intro-caption { bottom: 180px; font-size: 12px; }
+}
+
 </style>
 </head>
 <body>
@@ -55365,24 +55415,16 @@ function renderTalk(name, intro, list, next) {
 function render() {
   if (sceneId === "splash" || sceneId === "intro") {
     stopIntroAudio();
-    const tower = `<svg class="tower" viewBox="0 0 24 40" aria-hidden="true"><path fill="#2c211c" d="M11.2 0h1.6l.6 3.2h1.8l-.4 1.2H9.2L8.8 3.2h1.8L11.2 0zm-2 5.2h5.6l.5 2.2H8.7l.5-2.2zM8.2 8.2h7.6l.7 14.2H7.5L8.2 8.2zm-1.4 15.2h10.4l.4 2.2H6.4l.4-2.2zm-.8 3.2h12l.5 2.4h-13l.5-2.4zm1.2 3.4h9.6V40H7.2v-6.8z"/></svg>`;
-    shell(
-      "Заставка",
-      introVisualHtml(),
-      `<section class="splash-panel">
-        <div class="eyebrow"><span class="mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1.5 3 2 5.5 2 8-1.2-.3-2-.5-2-.5S11.2 9.7 10 10c0-2.5.5-5 2-8zm0 9.5s.8.2 2 .5c0 2.5-.5 5-2 8-1.5-3-2-5.5-2-8 1.2.3 2 .5 2 .5zm7.5-1.5c-3 1.5-5.5 2-8 2 .3-1.2.5-2 .5-2s-.2.8-.5 2c2.5 0 5-.5 8-2zm-15 0c3 1.5 5.5 2 8 2-.3-1.2-.5-2-.5-2s.2.8.5 2c-2.5 0-5-.5-8-2zm15 7c-3-1.5-5.5-2-8-2 .3 1.2.5 2 .5 2s-.2-.8-.5-2c2.5 0 5 .5 8 2zm-15 0c3-1.5 5.5-2 8-2-.3 1.2-.5 2-.5 2s.2-.8.5-2c-2.5 0-5 .5-8 2z"/></svg></span><span>Интерактивная управленческая игра</span></div>
-        <h1>${tower}Вкус Франции</h1>
-        <div class="splash-badge">Управленческий бизнес-кейс</div>
-        <p class="lead">Вас пригласили в качестве внешнего консультанта в региональную пекарню «Вкус Франции», которая уже около десяти лет работает на рынке.</p>
-        <p class="lead">Бизнес столкнулся с серьёзными трудностями. Вам предстоит разобраться в ситуации, выявить причины проблем и принять управленческие решения, которые помогут вернуть предприятию стабильность и развитие.</p>
+    app.innerHTML = `<div class="screen splash-screen">
+      ${introVisualHtml()}
+      <div class="splash-hud">
         ${introPlayerHtml()}
         <div class="splash-actions">
           <button class="btn goldish" data-go="owner" type="button">Начать историю →</button>
         </div>
-      </section>`,
-      "",
-      { splash: true }
-    );
+      </div>
+    </div>`;
+    app.querySelectorAll("[data-go]").forEach((b) => { b.onclick = () => go(b.dataset.go); });
     bindIntroPlayer();
     return;
   }
